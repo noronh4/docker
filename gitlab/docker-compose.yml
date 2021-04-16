@@ -1,0 +1,39 @@
+version: '3.5'
+services:
+  web:
+    image: 'gitlab/gitlab-ee:latest'
+    restart: always
+    hostname: 'gitlab.teste.com'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://192.168.1.9:443'
+        # Add any other gitlab.rb configuration here, each on its own line
+    ports:
+      - '80:80'
+      - '443:443'
+      #- '22:22'
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    #networks:
+    #  - local-network
+    
+  
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    restart: always
+    depends_on:
+      - web
+    volumes:
+      - /srv/gitlab-runner/config:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+    #networks:
+    #  - local-network
+
+networks:
+  default:
+    external:
+      name: local-network
+
+    
