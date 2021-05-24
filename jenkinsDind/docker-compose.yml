@@ -6,40 +6,44 @@ services:
     image: docker:dind
     privileged: true
     restart: unless-stopped
-    #networks:
-    #  local-network:
-    #    aliases:
-    #      - docker
+    networks:
+      local-network:
+        aliases:
+          - docker
     volumes: 
       - data:/var/jenkins_home
       - certs:/certs/client
+      #- /etc/hosts:/etc/hosts
     environment:
       - DOCKER_TLS_CERTDIR=/certs
     
   jenkins:
     container_name: jenkins-blueocean
     image: jenkinsci/blueocean
+    user: root
     restart: unless-stopped
-    #networks:
-    #  - local-network
+    networks:
+      - local-network
     ports:
       - 8082:8080
       - 50002:50000
     volumes:                     #Note that if you change the source volume or directory
       - data:/var/jenkins_home   #for this, the volume from the docker:dind container
       - certs:/certs/client:ro   #above needs to be updated to match this.
+      #- /etc/hosts:/etc/hosts ##########
+      #- /var/run/docker.sock:/var/run/docker.sock ###
     environment:
       - DOCKER_HOST=tcp://docker:2376
       - DOCKER_CERT_PATH=/certs/client
       - DOCKER_TLS_VERIFY=1
 
-#networks:
-#  local-network:
-#    driver: bridge
 networks:
-  default:
-    external:
-      name: local-network
+  local-network:
+    driver: bridge
+#networks:
+#  default:
+#    external:
+#      name: local-network
 
     
 volumes:
